@@ -1,0 +1,13 @@
+{
+  "name": "hello",
+  "title": "דוגמה",
+  "version": 0,
+  "canvas": { "w": 1080, "h": 1080, "platform": "square", "background": "#0a0810" },
+  "layers": [
+    { "id": "glow", "name": "עיגול", "type": "shape", "shape": "ellipse", "fill": "#7c3aed", "x": 240, "y": 200, "w": 600, "h": 600, "opacity": 0.35 },
+    { "id": "card", "name": "כרטיס", "type": "shape", "shape": "rect", "fill": "#efe9dc", "radius": 32, "x": 120, "y": 340, "w": 840, "h": 400, "rotation": -3, "shadow": { "blur": 40, "y": 24, "alpha": 0.5 } },
+    { "id": "title", "name": "כותרת", "type": "text", "text": "שולטים בכל שכבה", "font": "Rubik", "weight": 900, "size": 96, "color": "#16121f", "align": "center", "x": 140, "y": 420, "w": 800, "rotation": -3 },
+    { "id": "sub", "name": "שורה קטנה", "type": "text", "text": "טקסט בקוד, רקע מה AI, ודף שבו מזיזים הכול", "font": "Frank Ruhl Libre", "weight": 700, "size": 40, "color": "#7c3aed", "align": "center", "x": 140, "y": 560, "w": 800, "rotation": -3 },
+    { "id": "tag", "name": "תווית", "type": "text", "text": "דוגמה", "font": "Karantina", "weight": 700, "size": 64, "color": "#efe9dc", "align": "center", "x": 820, "y": 160, "background": { "color": "#e879f9", "padding": 8, "radius": 10 }, "rotation": 8 }
+  ]
+}

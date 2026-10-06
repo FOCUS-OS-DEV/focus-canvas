@@ -1,0 +1,7 @@
+{
+  "name": "new-picture",
+  "title": "תמונה חדשה",
+  "version": 0,
+  "canvas": { "w": 1080, "h": 1440, "platform": "ig-post", "background": "#0a0810" },
+  "layers": []
+}

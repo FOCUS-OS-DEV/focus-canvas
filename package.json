@@ -1,0 +1,11 @@
+{
+  "name": "focus-canvas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Focus Canvas by Focus AI Academy: images built in layers inside Claude Code, with an editor page",
+  "type": "module",
+  "dependencies": {
+    "playwright": "1.59.1",
+    "sharp": "0.34.5"
+  }
+}
