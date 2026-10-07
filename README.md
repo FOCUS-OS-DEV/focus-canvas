@@ -40,7 +40,11 @@
 אם אתה קלוד קוד: תריץ את שתי הפקודות האלה, אחת אחרי השנייה:
 claude plugin marketplace add FOCUS-OS-DEV/focus-canvas
 claude plugin install focus-canvas@focus-ai-academy
-אם אתה קודקס: תשכפל את המאגר, תריץ בתוכו npm install ואחריו npx playwright install chromium, ותעתיק את התיקייה skills/image לתוך ~/.agents/skills/focus-canvas
+אם אתה קודקס: תשכפל את המאגר, תריץ בתוכו את שתי הפקודות האלה, אחת אחרי השנייה:
+npm install
+npx playwright install chromium
+ואז תעתיק את התיקייה skills/image לתוך התיקייה הזאת:
+~/.agents/skills/focus-canvas
 אם משהו לא עובד, תגיד לי בדיוק מה להקליד כאן בצ'אט כדי להתקין.
 בסוף תגיד לי לסגור ולפתוח מחדש את הכלי.
 ```
