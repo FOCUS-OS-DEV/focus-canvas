@@ -16,8 +16,10 @@ Show the user the example (`assets/examples/hello/renders/current.png`) and say:
 ## Keys
 
 Generating, editing, expanding and cutting pictures need the user's own keys:
-- OpenAI (`OPENAI_API_KEY`) for new pictures and edits.
-- fal (`FAL_KEY`) for cutouts and expanding.
+- OpenAI (`OPENAI_API_KEY`) for new pictures and edits with gpt-image-2.
+- fal (`FAL_KEY`) for cutouts and expanding, and for new pictures and edits with nano-banana-pro (the engine used
+  when there is no OpenAI key, or when the OpenAI account has no credits).
+One key is enough to start: with fal alone every step works.
 Tell the user, once, where to put them: `~/.focus-canvas/.env`, one per line, `NAME=value`. Composing, the editor,
 the gate and the exports work without any key. Never print a key, never write it into a project file.
 

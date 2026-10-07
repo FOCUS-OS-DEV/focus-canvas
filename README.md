@@ -1,34 +1,92 @@
+<div dir="rtl">
+
 # Focus Canvas
 
-Focus Canvas by Focus AI Academy: finished pictures built in layers inside Claude Code, in Hebrew.
+סקיל של Focus AI Academy שהופך את Claude Code (וגם את Codex) למעצב שעובד בשכבות. כותבים לו בעברית איזו תמונה רוצים,
+מאשרים תוכנית קצרה עם המחיר, והוא בונה את התמונה: AI מייצר את מה שהוא טוב בו, קוד כותב את מה שחייב להיות מדויק,
+ודף עריכה מקומי נפתח כדי להזיז, להגדיל ולסובב כל שכבה ולשמור.
 
-- AI makes what AI makes well: backgrounds, scenes, a stamp, a character.
-- Code writes what has to be exact: Hebrew text in real fonts, logos, shapes, a photo wall.
-- Your originals are never regenerated: a poster or a photo stays as it is, and what is new goes on top.
-- A local editor page where you click any piece, drag it, resize and rotate it, change the words, fill the photo
-  wall slot by slot, and save. Claude continues from what you saved.
-- One file is the picture (`layers.json`); the same picture comes out in every size (post, story, square, link image).
+המדריך המלא בעברית, עם הפרומפטים המוכנים: https://focusai.co.il/guides/focus-canvas/
 
-## Install
+## מה אפשר לעשות איתו
 
-Claude Code, Windows or macOS, Node.js 20 or newer.
+- פוסט, סטורי, פוסטר או תמונה לקישור, מתמונות ולוגו שלכם או מאפס.
+- חותמת, סרט או דמות על פוסטר קיים, בלי לייצר את הפוסטר מחדש.
+- טקסט בעברית בפונט אמיתי, מימין לשמאל, בדיוק כמו שכתבתם. אף פעם לא פיקסלים ממודל תמונה.
+- קיר תמונות מהצילומים שלכם, משבצת אחרי משבצת.
+- סדרת איורים בסגנון אחד, עם אותה דמות ואותו חדר, לקרוסלה או לסרטון.
+- אותה תמונה בכל גודל: פוסט, סטורי, ריבוע, תמונה לקישור.
+
+## מה צריך
+
+- Claude Code או Codex על מחשב עם Windows או Mac, ו Node.js 20 ומעלה.
+- מפתח של fal או של OpenAI לייצור תמונות. מספיק אחד מהם. העריכה, דף העריכה, הבדיקות והייצוא עובדים בלי שום מפתח.
+- בפעם הראשונה הסקיל מתקין לבד שתי חבילות ודפדפן, אחרי שאתם מאשרים.
+
+## התקנה
+
+מדביקים ב Claude Code את שתי השורות, אחת אחרי השנייה:
 
 ```
-git clone https://github.com/FOCUS-OS-DEV/focus-canvas
-cd focus-canvas && npm install && npx playwright install chromium
+/plugin marketplace add FOCUS-OS-DEV/focus-canvas
+/plugin install focus-canvas@focus-ai-academy
 ```
 
-Then, in Claude Code, add the folder as a plugin (or copy `skills/image` into `~/.claude/skills/`) and say what you
-want in Hebrew: "תעשה לי פוסט לאינסטגרם עם סולד אאוט על הפוסטר הזה". The first run checks the computer and shows a
-test picture. Generating pictures needs your own OpenAI key; cutting and expanding need a fal key; everything else
-works without keys.
+או בדרך הכי פשוטה: מדביקים ב Claude Code או ב Codex את הפרומפט הזה, והכלי מתקין לבד:
 
-## What is inside
+```
+תתקין לי את הסקיל Focus Canvas של האקדמיה של פוקוס.
+המאגר: https://github.com/FOCUS-OS-DEV/focus-canvas
+אם אתה קלוד קוד: תריץ את שתי הפקודות האלה, אחת אחרי השנייה:
+claude plugin marketplace add FOCUS-OS-DEV/focus-canvas
+claude plugin install focus-canvas@focus-ai-academy
+אם אתה קודקס: תשכפל את המאגר, תריץ בתוכו npm install ואחריו npx playwright install chromium, ותעתיק את התיקייה skills/image לתוך ~/.agents/skills/focus-canvas
+אם משהו לא עובד, תגיד לי בדיוק מה להקליד כאן בצ'אט כדי להתקין.
+בסוף תגיד לי לסגור ולפתוח מחדש את הכלי.
+```
 
-`skills/image/SKILL.md` is the skill. `references/` hold the method, `scripts/` the tools, `assets/fonts/` seven
-Hebrew families under the Open Font License.
+ב Codex אפשר גם ידנית: משכפלים את המאגר, מריצים בתוכו `npm install` ואחריו `npx playwright install chromium`,
+ומעתיקים את התיקייה `skills/image` לתוך `~/.agents/skills/focus-canvas`.
 
-## License
+אחרי ההתקנה סוגרים ופותחים מחדש את הכלי, ואז כותבים:
 
-See `LICENSE.md`. Free to use for your pictures, including commercial ones. The skill itself may not be sold or
-redistributed.
+```
+תעשה לי פוסט לאינסטגרם
+```
+
+בפעם הראשונה הסקיל בודק את המחשב, מראה תמונת בדיקה ואומר איפה לשים את המפתח: בקובץ `~/.focus-canvas/.env`,
+שורה אחת, `FAL_KEY=` או `OPENAI_API_KEY=`.
+
+כשיוצאת גרסה חדשה, מעדכנים בשורה אחת:
+
+```
+/plugin update focus-canvas@focus-ai-academy
+```
+
+## איך זה עובד
+
+1. אומרים מה רוצים. הסקיל שואל שאלה או שתיים, ולכל שאלה יש ברירת מחדל.
+2. מקבלים תוכנית: מה התמונה אומרת, כל מילה שתופיע בה, מה AI מייצר ומה קוד כותב, מה נשאר כמו שהוא, הגדלים, והמחיר
+   בדולרים. רק אחרי "כן" משהו עולה כסף.
+3. הסקיל מייצר, חותך ומרכיב, ובודק את התמונה לפני שאתם רואים אותה: אזור בטוח, גודל טקסט, ניגודיות, עברית.
+4. דף העריכה נפתח: לוחצים על חלק, גוררים, מגדילים, מסובבים, משנים מילים, ממלאים את קיר התמונות, ולוחצים שמירה.
+5. הסקיל ממשיך מהקובץ ששמרתם, ומוציא את הגרסה הסופית בכל הגדלים.
+
+## טוב לדעת
+
+- התמונות, הלוגו והפוסטרים שלכם לא משתנים ולא נוצרים מחדש. מה שחדש עולה עליהם.
+- כל תמונה נשמרת בתיקייה מסודרת משלה, עם קובץ אחד שהוא התמונה (`layers.json`) וכל גרסה קודמת.
+- כל שלב בתשלום מצוטט לפני ומדווח אחרי, לפי מחירי הספקים.
+- שבע משפחות פונטים בעברית מגיעות עם הסקיל, ברישיון פתוח.
+
+## מה יש בפנים
+
+`skills/image/SKILL.md` הוא הסקיל. `references/` מחזיקים את השיטה, `scripts/` את הכלים, `assets/fonts/` את הפונטים.
+
+## אחריות
+
+השימוש בסקיל הוא באחריותכם בלבד. הוא ניתן כמו שהוא, בלי שום התחייבות, ו Focus AI Academy לא אחראית לנזק או לאובדן מכל
+סוג שנגרמו מהשימוש בו. אתם אחראים לכל תמונה שאתם יוצרים ומפרסמים, ולכך שיש לכם זכות להשתמש בכל חומר שנכנס אליה.
+ראו `LICENSE.md`: מותר להשתמש בתמונות שיצרתם, גם למטרה מסחרית. אסור למכור את הסקיל עצמו או להפיץ אותו מחדש.
+
+</div>
