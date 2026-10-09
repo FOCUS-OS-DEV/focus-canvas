@@ -1,11 +1,11 @@
 ---
 name: image
-description: "Focus Canvas by Focus AI Academy: plans, generates and composes finished pictures inside Claude Code, in Hebrew by default. Use this skill whenever the user wants a picture made or changed: a social post, a story, a poster, a cover, an ad image, a sold-out stamp on a poster, a photo wall, a logo or a text laid on a picture, a picture in several sizes. Also when the user says תמונה, פוסט, פוסטר, סטורי, קאבר, באנר, מודעה, לוגו על תמונה, קיר תמונות, לשים טקסט על תמונה, לייצר תמונה, לערוך תמונה, או לפתוח את העורך. The picture is built in layers: what AI generates, what is cut out, and what code writes exactly (text, logos, shapes). The user fine-tunes every layer in a local editor page and saves; Claude continues from the saved file."
+description: "Focus Canvas by Focus AI Academy: plans, generates and composes finished pictures inside Claude Code, in Hebrew by default. Use this skill whenever the user wants a picture made or changed: a social post, a story, a poster, a cover, an ad image, a sold-out stamp on a poster, a photo wall, a logo or a text laid on a picture, a picture in several sizes. Also when the user says תמונה, פוסט, פוסטר, סטורי, קאבר, באנר, מודעה, לוגו על תמונה, קיר תמונות, לשים טקסט על תמונה, לייצר תמונה, לערוך תמונה, או לפתוח את העורך. The picture is built in layers: what AI generates (through the user's own MCP connection, never an API key), what is cut out, and what code writes exactly (text, logos, shapes). The user fine-tunes every layer in a local editor page and saves; Claude continues from the saved file."
 license: Free to use for making images, including commercial ones. The skill itself may not be sold or redistributed. See LICENSE.md in the repository.
-compatibility: Claude Code on Windows or macOS. Needs Node.js 20 or newer. The first-time setup installs two packages and a browser and needs an internet connection once. Generating and cutting pictures needs the user's own OpenAI and fal keys.
+compatibility: Claude Code or Codex on Windows or macOS. Needs Node.js 20 or newer. The first-time setup installs two packages and a browser and needs an internet connection once. Generating, cutting and expanding pictures go through an MCP server the user has connected (fal, Replicate or Higgsfield); the skill holds no API key and asks for none.
 metadata:
   author: Focus AI Academy
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Focus Canvas
@@ -25,8 +25,13 @@ Read `references/conversation.md` once per conversation. In short:
 - **Language.** Plain Hebrew, short sentences, no technical terms. "Layer" is שכבה, "render" is רינדור, that is all.
 - **Partner.** The user takes part at a few points where their choice matters: the plan, the picture candidates,
   the editor. Every question has a default, and "תמשיך" always works.
-- **Money.** Every paid step (generating, editing, expanding, cutting) is quoted before it runs and reported after.
-  Nothing paid runs before the user said yes to the plan that names the price.
+- **The picture service.** Pictures are generated through an MCP server the user connected to Claude Code or
+  Codex, and through nothing else. The skill detects what exists, says which one it will use, and when there is
+  none it offers three (fal, Replicate, Higgsfield) with the install line, the price and the terms, and waits.
+  The user installs, or says to run the line. No key is ever asked for, read or stored.
+- **Money.** Every paid step (generating, editing, expanding, cutting) is quoted before it runs, from the
+  provider's own price, and reported after from `costs.json`. Nothing paid runs before the user said yes to the
+  plan that names the price. The spend is the user's.
 - **Showing.** The editor page, the render and the folder open on the user's screen (`scripts/open.mjs`). One page,
   one tab: the page updates itself; never open a second copy.
 - **Brand.** It appears three times in the conversation, as written in that file. It never appears inside the
@@ -37,11 +42,11 @@ Read `references/conversation.md` once per conversation. In short:
 Copy this list and track it. A single job (one text on one photo) runs only the steps it needs.
 
 - [ ] 0. Model and effort
-- [ ] 1. Setup, the first time only
+- [ ] 1. Setup, the first time only, and the picture service
 - [ ] 2. What are we making: the surface, the brief, the material
 - [ ] 3. The project folder
 - [ ] 4. The plan, with the price
-- [ ] 5. Generate, cut, expand (the paid steps)
+- [ ] 5. Generate, cut, expand (the paid steps, through the MCP connection)
 - [ ] 6. Compose
 - [ ] 7. The gate
 - [ ] 8. The editor page
@@ -52,14 +57,20 @@ Copy this list and track it. A single job (one text on one photo) runs only the 
 A good picture needs judgment on every layer. If the session runs below the strongest model with high effort, say so
 to the user in one line before the plan.
 
-### 1. Setup
+### 1. Setup and the picture service
 
 ```
-node "<SKILL>/scripts/doctor.mjs" --selftest
+node "<SKILL>/scripts/doctor.mjs" --selftest --tools "<every mcp__ tool name you see in this session>"
 ```
-Checks Node, the two packages, the browser and the fonts, says which keys exist, and renders the example. `missing`
-carries the install command for each item. Keys go in `~/.focus-canvas/.env` as `OPENAI_API_KEY=` and `FAL_KEY=`;
-the user pastes them there, you never print them. Details: `references/setup.md`.
+Checks Node, the two packages, the browser and the fonts, renders the example, and under `mcp` says which MCP
+servers on this computer make pictures. `missing` carries the install command for each item. Details and the
+offer when no picture server exists: `references/setup.md`. On a later project, when a picture needs generating,
+run the detection alone:
+```
+node "<SKILL>/scripts/mcp.mjs" --tools "<the mcp__ tool names of this session>"
+```
+Found: say which, in one line. Not connected: give the sign-in step (`/mcp` in Claude Code, `codex mcp login` in
+Codex). None: the offer, then wait for the user's choice. Nothing is installed without their yes.
 
 ### 2. What are we making
 
@@ -81,19 +92,23 @@ node "<SKILL>/scripts/project.mjs" ingest my-picture "C:/photos" "C:/brand/logo.
 
 One message before anything is built or paid (`references/plan.md`): what the picture says, every word that will
 appear on it with its exact spelling, which layers AI makes and which code writes, what is kept untouched, the sizes,
-and the price of the paid steps in dollars. Wait for a clear yes.
+the service, and the price of the paid steps as the provider counts it. The price comes from the provider's tool
+(`get_pricing` on fal, the model page on Replicate, `get_cost` on Higgsfield). Wait for a clear yes.
 
 ### 5. Generate, cut, expand
 
+Through the MCP server's tools, as `references/generate.md` describes per provider: read the tool's schema once
+per session, call it, then bring the result into the project and write the charge:
 ```
-node "<SKILL>/scripts/gen.mjs" price make --n 2
-node "<SKILL>/scripts/gen.mjs" make   my-picture --prompt "..." --n 2 --name bg
-node "<SKILL>/scripts/gen.mjs" edit   my-picture --image source/photos/poster.jpg --prompt "..." --name stamp
-node "<SKILL>/scripts/gen.mjs" cut    my-picture --image work/gen/stamp-1.png --name stamp
-node "<SKILL>/scripts/gen.mjs" expand my-picture --image source/photos/poster.jpg --to 1080x1440
+node "<SKILL>/scripts/save.mjs" my-picture --url "<result url>" --name bg    --provider fal --model fal-ai/nano-banana-pro --usd 0.15
+node "<SKILL>/scripts/save.mjs" my-picture --url "<result url>" --name stamp --kind cut --provider fal --model fal-ai/birefnet/v2 --usd 0.01
+node "<SKILL>/scripts/save.mjs" my-picture --url "<result url>" --name ext   --original source/photos/poster.jpg --at 0,180 --provider fal --model fal-ai/bria/expand --usd 0.04
+node "<SKILL>/scripts/save.mjs" my-picture put source/photos/poster.jpg --to "<signed upload url>"
+node "<SKILL>/scripts/save.mjs" costs my-picture
 ```
-Prompts, what each model is good at, and the recipe for a stamp or a character that is then cut out and laid on an
-untouched original: `references/generate.md`. Hebrew text is never left to the image model: it is a text layer.
+Prompts, what each model is good at, the tool names and parameters of fal, Replicate and Higgsfield, and the recipe
+for a stamp or a character that is then cut out and laid on an untouched original: `references/generate.md`.
+Hebrew text is never left to the image model: it is a text layer.
 
 ### 6. Compose
 
@@ -131,7 +146,7 @@ node "<SKILL>/scripts/compose.mjs" my-picture --bump          the numbered final
 node "<SKILL>/scripts/export.mjs"  my-picture --to ig-story,square --jpg
 node "<SKILL>/scripts/open.mjs"    my-picture --select
 ```
-Say where the files are, what was spent (from `costs.json`), and what the user should check before posting.
+Say where the files are, what was spent (`save.mjs costs`), and what the user should check before posting.
 
 ## Iron rules
 
@@ -147,19 +162,22 @@ Say where the files are, what was spent (from `costs.json`), and what the user s
 7. **Only what the user may use.** Photos, logos and fonts come from the user or from this skill's fonts. Another
    company's logo or a stock photo is never generated as a lookalike.
 8. **Numbers and claims on the picture come from the user.** A date, a price, a count is asked, never invented.
+9. **Pictures are generated through an MCP connection only.** Never an API key: not asked for, not read from a
+   file or the environment, not printed, not stored. The skill says which connection it uses; when there is none
+   it offers, with the price and the terms, and the user decides and acts. Nothing is installed without their yes.
 
 ## Files
 
 | File | What it holds |
 |---|---|
-| `references/conversation.md` | the voice, the three brand moments, the questions and their defaults |
+| `references/conversation.md` | the voice, the three brand moments, the picture service, the questions and their defaults |
 | `references/platforms.md` | the surfaces, sizes and safe zones |
 | `references/plan.md` | the plan message, with an example |
 | `references/layers.md` | the layers file: every type and property |
-| `references/generate.md` | the paid steps: models, prices, prompts, recipes |
+| `references/generate.md` | the paid steps through MCP: the tools of fal, Replicate and Higgsfield, prices with their date, prompts, recipes |
 | `references/editor.md` | the editor page: what the user can do, what you do after a save |
 | `references/gate.md` | every check of `check.mjs` and how to fix it |
-| `references/setup.md` | the first-time setup and the keys |
-| `scripts/` | `project.mjs`, `gen.mjs`, `compose.mjs`, `check.mjs`, `editor.mjs`, `export.mjs`, `open.mjs`, `doctor.mjs` |
+| `references/setup.md` | the first-time setup, the detection of picture servers, the offer and the consent |
+| `scripts/` | `project.mjs`, `mcp.mjs`, `save.mjs`, `compose.mjs`, `check.mjs`, `editor.mjs`, `export.mjs`, `open.mjs`, `doctor.mjs` (`gen.mjs` is internal and deprecated, not part of the flow) |
 | `assets/fonts/` | seven Hebrew families under the Open Font License |
 | `assets/examples/hello/` | the self-test picture |

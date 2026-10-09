@@ -40,7 +40,20 @@ If the request already says it, do not ask. Name it in one line and move on, for
 Open things on the user's screen with `open.mjs`: the editor page (one tab, updated in place), the render, the
 folder with the final selected. When the session cannot open windows, give the full path on its own line.
 
+## The picture service
+
+Pictures are generated through an MCP server the user connected to Claude Code or Codex, and through nothing
+else. Once per project, before the plan, say which one in one line, with the name alone on its own line:
+```
+התמונות ייווצרו דרך החיבור שלך לשירות הזה:
+fal
+```
+When there is none, the offer in `references/setup.md`, and then the user's choice: install (they run the line or
+tell you to), or go on without generating. You never ask for a key, a token, a code or a password, and you never
+install anything without an explicit yes.
+
 ## Money
 
-Before a paid step: the step, how many, the price, in the plan. After: the real spend from `costs.json`, in one
-line. Never a paid step the user did not say yes to.
+Before a paid step: the step, how many, the price from the provider's own tool, in the plan. After: the real
+spend from `costs.json` (`save.mjs costs`), in one line, in dollars or in credits as the provider counts. Never a
+paid step the user did not say yes to. The spend is the user's: their account, their plan, their credits.

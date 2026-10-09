@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+// INTERNAL, DEPRECATED since 0.3.0 (2026-10-09). Not part of the skill's flow and not documented to the user.
+// Pictures are generated through an MCP connection only (see references/generate.md and scripts/mcp.mjs); the
+// result is brought into the project with scripts/save.mjs. This file is the old direct-API path and stays only for
+// maintainers who hold their own keys. It is never offered to the user, and no user is ever asked for a key.
+//
 // Focus Canvas: the paid steps, each with its price printed BEFORE anything runs.
 //   node gen.mjs make   <project> --prompt "..." [--size 1024x1536] [--n 1] [--name bg] [--quality high] [--engine openai|fal]   a new picture
 //   node gen.mjs edit   <project> --image <file[,file2]> --prompt "..." [--n 1] [--name edit] [--engine openai|fal]            an edit that keeps the picture, or a picture made from references
@@ -25,8 +30,9 @@ const PRICES = {
 };
 const args = parseArgs(process.argv.slice(2));
 const cmd = args._[0];
+note('gen.mjs is deprecated and internal: the skill generates through an MCP connection (scripts/mcp.mjs, scripts/save.mjs).');
 if (!cmd || args.help) {
-  console.log(`gen.mjs: the paid steps of Focus Canvas. Prices (list): ${Object.entries(PRICES).map(([k, p]) => `${k} $${p.usd}/${p.unit} (${p.model})`).join('; ')}.
+  console.log(`gen.mjs (INTERNAL, DEPRECATED): the old direct-API path of Focus Canvas. Prices (list): ${Object.entries(PRICES).map(([k, p]) => `${k} $${p.usd}/${p.unit} (${p.model})`).join('; ')}.
 
 Usage:
   node gen.mjs price  make|edit|expand|cut [--n 1] [--engine openai|fal]

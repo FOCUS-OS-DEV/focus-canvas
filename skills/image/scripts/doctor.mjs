@@ -1,10 +1,14 @@
 #!/usr/bin/env node
-// Focus Canvas: checks the computer once. Node 20+, the two packages, the browser, the fonts, and which keys exist.
-//   node doctor.mjs [--selftest]
+// Focus Canvas: checks the computer once. Node 20+, the two packages, the browser, the fonts, and which MCP servers
+// can make pictures (pictures are generated through an MCP connection only; this skill holds no API key).
+//   node doctor.mjs [--selftest] [--write] [--probe] [--tools "mcp__x__a,..."] [--cwd <dir>]
+// --probe asks `claude mcp list` whether each server connects (a few seconds). --tools passes the tool names of the
+// running session, so a server is confirmed by its tools. Never prints a key.
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { out, parseArgs, SKILL, FONTS_DIR, HOME } from './lib/common.mjs';
+import { detect } from './mcp.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const r = { ok: true, node: process.version, missing: [], notes: [] };
@@ -29,11 +33,28 @@ if (fs.existsSync(path.join(nm, 'playwright'))) {
 }
 r.browser = browser;
 r.fonts = fs.existsSync(path.join(FONTS_DIR, 'fonts.json')) ? JSON.parse(fs.readFileSync(path.join(FONTS_DIR, 'fonts.json'), 'utf8')).fonts.map((f) => f.family) : [];
-const envFile = path.join(HOME, '.env');
-const envText = fs.existsSync(envFile) ? fs.readFileSync(envFile, 'utf8') : '';
-r.keys = { OPENAI_API_KEY: !!(process.env.OPENAI_API_KEY || /OPENAI_API_KEY=\S/.test(envText)), FAL_KEY: !!(process.env.FAL_KEY || process.env.FALAI_API_KEY || /FAL(AI_API)?_KEY=\S/.test(envText)), file: envFile };
-if (!r.keys.OPENAI_API_KEY) r.notes.push('no OpenAI key: pictures cannot be generated or edited until one is put in ' + envFile);
-if (!r.keys.FAL_KEY) r.notes.push('no fal key: cut and expand are off until one is put in ' + envFile);
+
+// Picture generation: an MCP connection, or nothing. Composing, the editor, the gate and the exports need none.
+const mcp = detect({ cwd: args.cwd || process.cwd(), probe: !!args.probe, tools: args.tools === true ? '' : args.tools });
+r.mcp = {
+  imageCapable: mcp.imageCapable,
+  maybeImageCapable: mcp.maybeImageCapable,
+  providersFound: mcp.providersFound,
+  recommended: mcp.recommended,
+  configsRead: [...mcp.clients.claudeCode.files, ...mcp.clients.codex.files],
+  probe: mcp.probe,
+  offer: mcp.offer,
+  rule: mcp.rule,
+};
+if (!mcp.imageCapable.length) {
+  r.notes.push('no MCP server that makes pictures is connected: composing, editing, the gate and exports work; generating, cutting and expanding wait until the user chooses and installs one (see mcp.offer). Nothing is installed without the user\'s yes.');
+} else {
+  const needsAuth = mcp.imageCapable.filter((s) => s.status && s.status !== 'connected');
+  if (needsAuth.length) r.notes.push('these picture servers exist but do not connect yet: ' + needsAuth.map((s) => `${s.name} (${s.status})`).join(', ') + '. In Claude Code: /mcp, choose the server, Authenticate. In Codex: codex mcp login <name>.');
+  if (!mcp.providersFound.includes('fal') && !mcp.providersFound.includes('replicate')) r.notes.push('cutouts and expanding are verified on fal and Replicate only; with Higgsfield alone, list its tools before promising a cutout.');
+}
+if (mcp.maybeImageCapable.length) r.notes.push('servers that may make pictures, to confirm by their tool names (--tools): ' + mcp.maybeImageCapable.map((s) => s.name).join(', '));
+
 fs.mkdirSync(HOME, { recursive: true });
 if (args.selftest && r.ok) {
   try {
@@ -43,6 +64,6 @@ if (args.selftest && r.ok) {
     r.selftest = res;
   } catch (e) { r.selftest = { ok: false, error: String(e.message || e) }; r.ok = false; }
 }
-if (args.write) fs.writeFileSync(path.join(HOME, 'state.json'), JSON.stringify({ checked: new Date().toISOString(), node: r.node, browser: r.browser }, null, 2));
+if (args.write) fs.writeFileSync(path.join(HOME, 'state.json'), JSON.stringify({ checked: new Date().toISOString(), node: r.node, browser: r.browser, mcp: { providersFound: mcp.providersFound, imageCapable: mcp.imageCapable.map((s) => s.name) } }, null, 2));
 out(r);
 process.exit(r.ok ? 0 : 1);
