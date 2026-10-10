@@ -8,12 +8,13 @@ the editor, the gate and the exports run on the user's computer and cost nothing
 
 1. **Which server.** `node "<SKILL>/scripts/mcp.mjs" --tools "<every mcp__ tool name you see in this session>"`
    (`doctor.mjs` runs the same at setup). It reads the MCP configs of Claude Code and Codex, names the servers that
-   make pictures, and prints nothing but names and hosts. Known providers: fal, Replicate, Higgsfield. Another
-   server counts when its own tools generate or edit pictures (`imageCapable` from the tool names).
+   make pictures, and prints nothing but names and hosts. Known providers: fal, Replicate, Higgsfield, and only
+   they count (`imageCapable`), since only their prices are known. Another server with picture tools (Canva,
+   Cloudinary) is listed under `otherImageServers` and is not used for the paid steps.
 2. **None:** the offer, in `references/setup.md`. Nothing is installed and nothing is paid without the user's
    yes. **Several:** ask which one, with the default marked: the one that covers the step. Cutouts and expanding
    are verified on fal and Replicate only.
-3. **Not connected yet** (`status: needs-auth` or `failed`): tell the user the step, in their words: in Claude Code
+3. **Not connected yet** (`notConnected`, `status: not-connected`, `needs-auth` or `failed`): tell the user the step, in their words: in Claude Code
    `/mcp`, choose the server, Authenticate in the browser, then a fresh session. In Codex `codex mcp login <name>`.
 4. **The schema first.** Once per session and provider, read the server's tool list and the input schema of the
    tool you will call (fal `get_model_schema`, Replicate `get_models`, Higgsfield the tool's own schema). Never call

@@ -26,7 +26,9 @@ What happens, every time a picture needs generating and at setup:
 1. **Detect.** `mcp.mjs` reads the MCP configs: for Claude Code `~/.claude.json` (user and local scope) and the
    project's `.mcp.json`; for Codex `~/.codex/config.toml` and `.codex/config.toml`. With `--probe` it also asks
    `claude mcp list` whether each server connects. With `--tools` it confirms a server by the tools of the running
-   session, and finds image tools on servers it does not know by name.
+   session, and finds image tools on servers it does not know by name; without it a server is only
+   `configured, not verified`. Only fal, Replicate and Higgsfield count; other picture servers are listed under
+   `otherImageServers`.
 2. **Found.** Say so in one line, with the name alone on its own line, and that every picture is quoted before it
    is made:
    ```
@@ -34,7 +36,7 @@ What happens, every time a picture needs generating and at setup:
    fal
    לפני כל תמונה אני אומר כמה היא עולה ומחכה לאישור.
    ```
-   If the server exists but does not connect (`needs-auth`, `failed`), give the step: in Claude Code `/mcp`,
+   If the server exists but does not connect (`notConnected`: `not-connected`, `needs-auth`, `failed`), give the step: in Claude Code `/mcp`,
    choose the server, Authenticate in the browser, then a fresh session; in Codex `codex mcp login <name>`.
 3. **Several found.** Ask which, default marked: the one that covers the step (cutouts and expanding are verified
    on fal and Replicate).
