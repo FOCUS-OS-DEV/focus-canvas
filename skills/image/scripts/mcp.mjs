@@ -5,7 +5,7 @@
 //   node mcp.mjs --tools "a,b,c"      the tool names of the running session (mcp__<server>__<tool>), to confirm a
 //                                     server by its tools and to find image tools on servers this file does not know
 //   node mcp.mjs --offer              print the three providers to offer when nothing exists: install lines, prices, terms
-//   node mcp.mjs --cwd <dir>          the project folder whose .mcp.json and .codex/config.toml are read (default: cwd)
+//   node mcp.mjs --cwd <dir>          the project folder whose local scope, .mcp.json and .codex/config.toml are read (default: cwd)
 // Pictures are generated through an MCP connection only. This tool never reads, prints or stores an API key:
 // URLs lose their query, header values and env values are never shown, long tokens in arguments are redacted.
 import fs from 'node:fs';
@@ -114,7 +114,26 @@ function entry(client, scope, name, cfg, where) {
 
 function readJson(file) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } }
 
-// Claude Code: ~/.claude.json (user scope under mcpServers, local scope under projects[<path>].mcpServers) and .mcp.json (project scope)
+// The keys of projects in ~/.claude.json are absolute paths, written with either slash and, on Windows, either case of
+// the drive letter (the CLI and the VS Code extension differ), so they are compared in one form.
+const normPath = (p) => { const s = path.resolve(String(p)).replace(/\\/g, '/').replace(/(.)\/+$/, '$1'); return process.platform === 'win32' ? s.toLowerCase() : s; };
+// Local scope belongs to one folder: Claude Code keys it by the folder it started in, or by the git root above it (a
+// worktree by its main repository). Only those entries apply here; the local servers of other projects do not.
+function localKeys(cwd) {
+  const keys = [normPath(cwd)];
+  for (let dir = path.resolve(cwd); ; ) {
+    const git = path.join(dir, '.git');
+    if (fs.existsSync(git)) {
+      keys.push(normPath(dir));
+      try { const m = fs.readFileSync(git, 'utf8').match(/gitdir:\s*(.+?)[\\/]\.git[\\/]worktrees[\\/]/); if (m) keys.push(normPath(m[1])); } catch {}
+      break;
+    }
+    const up = path.dirname(dir); if (up === dir) break; dir = up;
+  }
+  return [...new Set(keys)];
+}
+
+// Claude Code: ~/.claude.json (user scope under mcpServers, local scope under projects[<this folder>].mcpServers) and .mcp.json (project scope)
 function claudeServers(cwd) {
   const list = []; const files = [];
   const home = path.join(os.homedir(), '.claude.json');
@@ -122,8 +141,10 @@ function claudeServers(cwd) {
   if (j) {
     files.push(home);
     for (const [n, c] of Object.entries(j.mcpServers || {})) list.push(entry('claude-code', 'user', n, c, home));
-    for (const [proj, v] of Object.entries(j.projects || {})) {
-      for (const [n, c] of Object.entries((v && v.mcpServers) || {})) list.push(entry('claude-code', 'local', n, c, home + ' (project ' + proj + ')'));
+    const byKey = {}; for (const [proj, v] of Object.entries(j.projects || {})) (byKey[normPath(proj)] = byKey[normPath(proj)] || []).push([proj, v]);
+    const seen = new Set(); // the same folder may sit under two spellings; the nearest entry wins a name
+    for (const k of localKeys(cwd)) for (const [proj, v] of byKey[k] || []) {
+      for (const [n, c] of Object.entries((v && v.mcpServers) || {})) { if (seen.has(n)) continue; seen.add(n); list.push(entry('claude-code', 'local', n, c, home + ' (project ' + proj + ')')); }
     }
   }
   let dir = path.resolve(cwd);
