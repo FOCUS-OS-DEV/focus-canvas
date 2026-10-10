@@ -40,6 +40,7 @@ r.mcp = {
   verifiedBySession: mcp.verifiedBySession,
   imageCapable: mcp.imageCapable,
   notConnected: mcp.notConnected,
+  otherImageServers: mcp.otherImageServers,
   maybeImageCapable: mcp.maybeImageCapable,
   providersFound: mcp.providersFound,
   recommended: mcp.recommended,
@@ -57,6 +58,7 @@ if (!mcp.imageCapable.length) {
   if (!mcp.providersFound.includes('fal') && !mcp.providersFound.includes('replicate')) r.notes.push('cutouts and expanding are verified on fal and Replicate only; with Higgsfield alone, list its tools before promising a cutout.');
 }
 if (mcp.notConnected.length) r.notes.push('configured, but not connected in this session: ' + mcp.notConnected.map((s) => `${s.name} (${s.status})`).join(', ') + '. In Claude Code: /mcp, choose the server, Authenticate, then a fresh session. In Codex: codex mcp login <name>. The offer stands until one connects.');
+if (mcp.otherImageServers.length) r.notes.push('other servers with picture tools, not supported for pricing and not used for the paid steps: ' + mcp.otherImageServers.map((s) => s.name).join(', ') + '.');
 if (mcp.maybeImageCapable.length) r.notes.push('servers that may make pictures, to confirm by their tool names (--tools): ' + mcp.maybeImageCapable.map((s) => s.name).join(', '));
 
 fs.mkdirSync(HOME, { recursive: true });

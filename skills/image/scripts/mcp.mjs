@@ -249,11 +249,18 @@ export function detect({ cwd = process.cwd(), probe = false, tools = '' } = {}) 
       if (session[key].imageCapable) s.imageCapable = true; else if (s.imageCapable === 'maybe') s.imageCapable = false;
     }
     for (const [k, v] of Object.entries(session)) {
-      if (v.imageCapable && !matched.has(k)) servers.push({ name: k, client: 'session', scope: 'session', transport: null, where: 'the running session', provider: providerOf({ name: k }), imageCapable: true, status: 'connected', sessionTools: v.imageTools });
+      if (matched.has(k)) continue;
+      // connectors and plugins carry a prefix in the tool name: claude_ai_<Name>, plugin_<plugin>_<server>
+      const provider = providerOf({ name: k.replace(/^claude_ai_/i, '').replace(/^plugin_[^_]+_/i, '') });
+      if (v.imageCapable || provider) servers.push({ name: k, client: 'session', scope: 'session', transport: null, where: 'the running session', provider, imageCapable: true, status: v.authOnly ? 'needs-auth' : 'connected', sessionTools: v.imageTools });
     }
   }
   for (const s of servers) if (!s.status) s.status = UNVERIFIED;
-  const imageCapable = servers.filter((s) => s.imageCapable === true);
+  // Only the three known providers make the pictures of this skill: their prices and terms are in PROVIDERS, so every
+  // paid step can be quoted. Another server with a generate-image tool (Canva, Cloudinary...) is listed as other, and
+  // never hides the offer.
+  const imageCapable = servers.filter((s) => s.imageCapable === true && s.provider);
+  const other = servers.filter((s) => s.imageCapable === true && !s.provider);
   // Usable: with --tools only what this session reaches; without it, what is configured (labelled UNVERIFIED).
   const usable = imageCapable.filter((s) => !session || s.status === 'connected');
   const notConnected = imageCapable.filter((s) => !usable.includes(s));
@@ -271,6 +278,7 @@ export function detect({ cwd = process.cwd(), probe = false, tools = '' } = {}) 
     verifiedBySession: !!session,
     imageCapable: usable.map((s) => ({ name: s.name, client: s.client, provider: s.provider, status: s.status, tools: s.sessionTools })),
     notConnected: notConnected.map((s) => ({ name: s.name, client: s.client, provider: s.provider, status: s.status, hint: 'configured, but not usable in this session: sign in (Claude Code /mcp, Codex codex mcp login <name>), then a fresh session' })),
+    otherImageServers: other.map((s) => ({ name: s.name, client: s.client, status: s.status, tools: s.sessionTools, note: 'other, not supported for pricing: not used for the paid steps' })),
     maybeImageCapable: maybe.map((s) => ({ name: s.name, client: s.client, hint: 'confirm by its tool names: run again with --tools' })),
     providersFound,
     recommended: providersFound[0] || null,
