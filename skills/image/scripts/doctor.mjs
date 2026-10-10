@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { out, parseArgs, SKILL, FONTS_DIR, HOME } from './lib/common.mjs';
-import { detect } from './mcp.mjs';
+import { detect, UNVERIFIED } from './mcp.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const r = { ok: true, node: process.version, missing: [], notes: [] };
@@ -37,7 +37,9 @@ r.fonts = fs.existsSync(path.join(FONTS_DIR, 'fonts.json')) ? JSON.parse(fs.read
 // Picture generation: an MCP connection, or nothing. Composing, the editor, the gate and the exports need none.
 const mcp = detect({ cwd: args.cwd || process.cwd(), probe: !!args.probe, tools: args.tools === true ? '' : args.tools });
 r.mcp = {
+  verifiedBySession: mcp.verifiedBySession,
   imageCapable: mcp.imageCapable,
+  notConnected: mcp.notConnected,
   maybeImageCapable: mcp.maybeImageCapable,
   providersFound: mcp.providersFound,
   recommended: mcp.recommended,
@@ -47,12 +49,14 @@ r.mcp = {
   rule: mcp.rule,
 };
 if (!mcp.imageCapable.length) {
-  r.notes.push('no MCP server that makes pictures is connected: composing, editing, the gate and exports work; generating, cutting and expanding wait until the user chooses and installs one (see mcp.offer). Nothing is installed without the user\'s yes.');
+  r.notes.push('no MCP server that makes pictures is usable in this session: composing, editing, the gate and exports work; generating, cutting and expanding wait until the user chooses and installs one (see mcp.offer). Nothing is installed without the user\'s yes.');
 } else {
-  const needsAuth = mcp.imageCapable.filter((s) => s.status && s.status !== 'connected');
+  const needsAuth = mcp.imageCapable.filter((s) => s.status && s.status !== 'connected' && s.status !== UNVERIFIED);
   if (needsAuth.length) r.notes.push('these picture servers exist but do not connect yet: ' + needsAuth.map((s) => `${s.name} (${s.status})`).join(', ') + '. In Claude Code: /mcp, choose the server, Authenticate. In Codex: codex mcp login <name>.');
+  if (!mcp.verifiedBySession) r.notes.push('the picture servers above are configured, not verified: run again with --tools "<the mcp__ tool names of this session>" to confirm them.');
   if (!mcp.providersFound.includes('fal') && !mcp.providersFound.includes('replicate')) r.notes.push('cutouts and expanding are verified on fal and Replicate only; with Higgsfield alone, list its tools before promising a cutout.');
 }
+if (mcp.notConnected.length) r.notes.push('configured, but not connected in this session: ' + mcp.notConnected.map((s) => `${s.name} (${s.status})`).join(', ') + '. In Claude Code: /mcp, choose the server, Authenticate, then a fresh session. In Codex: codex mcp login <name>. The offer stands until one connects.');
 if (mcp.maybeImageCapable.length) r.notes.push('servers that may make pictures, to confirm by their tool names (--tools): ' + mcp.maybeImageCapable.map((s) => s.name).join(', '));
 
 fs.mkdirSync(HOME, { recursive: true });

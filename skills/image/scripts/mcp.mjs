@@ -3,7 +3,9 @@
 //   node mcp.mjs                      read the MCP configs of Claude Code and Codex and print what exists
 //   node mcp.mjs --probe              also ask `claude mcp list` whether each server connects (slow, a few seconds)
 //   node mcp.mjs --tools "a,b,c"      the tool names of the running session (mcp__<server>__<tool>), to confirm a
-//                                     server by its tools and to find image tools on servers this file does not know
+//                                     server by its tools and to find image tools on servers this file does not know.
+//                                     A configured server with none of its tools here is not-connected and not usable;
+//                                     without --tools a configured one counts, with the status "configured, not verified"
 //   node mcp.mjs --offer              print the three providers to offer when nothing exists: install lines, prices, terms
 //   node mcp.mjs --cwd <dir>          the project folder whose local scope, .mcp.json and .codex/config.toml are read (default: cwd)
 // Pictures are generated through an MCP connection only. This tool never reads, prints or stores an API key:
@@ -217,10 +219,15 @@ function toolsByServer(spec) {
   const result = {};
   for (const [server, tools] of Object.entries(by)) {
     const image = tools.filter((t) => IMAGE_TOOL.test(t) && IMAGE_WORD.test(t) || /^(generate_image|run_model|create_predictions|create_models_predictions|invoke_api_endpoint)$/i.test(t));
-    result[server] = { tools, imageTools: image, imageCapable: image.length > 0 };
+    // a server that waits for a sign-in shows only its sign-in tool, nothing that makes a picture
+    const authOnly = tools.every((t) => /^(authenticate|auth|login|sign_?in)$/i.test(t));
+    result[server] = { tools, imageTools: image, imageCapable: image.length > 0, authOnly };
   }
   return result;
 }
+
+// A server read from a config file and not confirmed by the tools of the running session (no --tools, no --probe).
+export const UNVERIFIED = 'configured, not verified';
 
 export function detect({ cwd = process.cwd(), probe = false, tools = '' } = {}) {
   const c = claudeServers(cwd); const x = codexServers(cwd);
@@ -230,20 +237,29 @@ export function detect({ cwd = process.cwd(), probe = false, tools = '' } = {}) 
     probeResult = probeClaude();
     if (probeResult.ok) for (const s of servers) if (s.client === 'claude-code' && probeResult.status[s.name]) s.status = probeResult.status[s.name];
   }
+  // A line in a config file is not a connection: the server may wait for a sign-in, or belong to the other client.
+  // --tools is the truth of this session: a configured server none of whose tools are here is not-connected.
   const session = tools ? toolsByServer(tools) : null;
   if (session) {
+    const matched = new Set();
     for (const s of servers) {
       const key = Object.keys(session).find((k) => k.toLowerCase() === s.name.toLowerCase() || k.toLowerCase().endsWith('_' + s.name.toLowerCase()) || k.toLowerCase().replace(/[^a-z0-9]/g, '') === s.name.toLowerCase().replace(/[^a-z0-9]/g, ''));
-      if (key) { s.sessionTools = session[key].imageTools; if (session[key].imageCapable) s.imageCapable = true; else if (s.imageCapable === 'maybe') s.imageCapable = false; }
+      if (!key) { s.status = s.status && s.status !== 'connected' ? s.status : 'not-connected'; if (s.imageCapable === 'maybe') s.imageCapable = false; continue; }
+      matched.add(key); s.sessionTools = session[key].imageTools; s.status = session[key].authOnly ? 'needs-auth' : 'connected';
+      if (session[key].imageCapable) s.imageCapable = true; else if (s.imageCapable === 'maybe') s.imageCapable = false;
     }
     for (const [k, v] of Object.entries(session)) {
-      if (v.imageCapable && !servers.some((s) => s.sessionTools === v.imageTools)) servers.push({ name: k, client: 'session', scope: 'session', transport: null, where: 'the running session', provider: providerOf({ name: k }), imageCapable: true, sessionTools: v.imageTools });
+      if (v.imageCapable && !matched.has(k)) servers.push({ name: k, client: 'session', scope: 'session', transport: null, where: 'the running session', provider: providerOf({ name: k }), imageCapable: true, status: 'connected', sessionTools: v.imageTools });
     }
   }
+  for (const s of servers) if (!s.status) s.status = UNVERIFIED;
   const imageCapable = servers.filter((s) => s.imageCapable === true);
+  // Usable: with --tools only what this session reaches; without it, what is configured (labelled UNVERIFIED).
+  const usable = imageCapable.filter((s) => !session || s.status === 'connected');
+  const notConnected = imageCapable.filter((s) => !usable.includes(s));
   const maybe = servers.filter((s) => s.imageCapable === 'maybe');
   const order = ['fal', 'replicate', 'higgsfield'];
-  const providersFound = [...new Set(imageCapable.map((s) => s.provider).filter(Boolean))].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  const providersFound = [...new Set(usable.map((s) => s.provider).filter(Boolean))].sort((a, b) => order.indexOf(a) - order.indexOf(b));
   return {
     ok: true,
     readOn: READ_ON,
@@ -252,12 +268,14 @@ export function detect({ cwd = process.cwd(), probe = false, tools = '' } = {}) 
       codex: { files: x.files, servers: x.list.length },
     },
     servers,
-    imageCapable: imageCapable.map((s) => ({ name: s.name, client: s.client, provider: s.provider, status: s.status, tools: s.sessionTools })),
+    verifiedBySession: !!session,
+    imageCapable: usable.map((s) => ({ name: s.name, client: s.client, provider: s.provider, status: s.status, tools: s.sessionTools })),
+    notConnected: notConnected.map((s) => ({ name: s.name, client: s.client, provider: s.provider, status: s.status, hint: 'configured, but not usable in this session: sign in (Claude Code /mcp, Codex codex mcp login <name>), then a fresh session' })),
     maybeImageCapable: maybe.map((s) => ({ name: s.name, client: s.client, hint: 'confirm by its tool names: run again with --tools' })),
     providersFound,
     recommended: providersFound[0] || null,
     probe: probeResult,
-    offer: imageCapable.length ? null : offer(),
+    offer: usable.length ? null : offer(),
     rule: 'Pictures are generated through an MCP connection only. Nothing is installed and nothing is paid without the user\'s explicit yes; the user runs the install line or approves it.',
   };
 }
