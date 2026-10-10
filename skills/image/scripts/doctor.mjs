@@ -20,7 +20,7 @@ Usage:
   node doctor.mjs [--selftest] [--write] [--install] [--probe] [--tools "mcp__x__a,mcp__y__b"] [--cwd <dir>]
 
   --selftest  also render the example picture
-  --write     keep the result in ~/.focus-canvas/state.json
+  --write     keep the result in ~/.focus-canvas/state.json, with setupDone once a run went through
   --install   install the browser of playwright when it is missing
   --probe     ask \`claude mcp list\` whether each server connects (slow, it starts every server)
   --tools     the tool names of the running session, to confirm a picture server by its tools
@@ -28,6 +28,11 @@ Usage:
   process.exit(0);
 }
 const r = { ok: true, node: process.version, missing: [], notes: [] };
+// firstRun: no setup on this computer went through yet (no setupDone in the state). That run's conversation shows the
+// disclaimer of references/setup.md, once; --write keeps setupDone, so every later run says firstRun: false.
+const STATE = path.join(HOME, 'state.json');
+let prev = null; try { prev = JSON.parse(fs.readFileSync(STATE, 'utf8')); } catch {}
+r.firstRun = !(prev && prev.setupDone === true);
 const major = +process.version.slice(1).split('.')[0];
 if (major < 20) { r.ok = false; r.missing.push({ what: 'Node.js 20 or newer', install: 'https://nodejs.org' }); }
 const root = path.resolve(SKILL, '..', '..');
@@ -86,6 +91,6 @@ if (args.selftest && r.ok) {
     r.selftest = res;
   } catch (e) { r.selftest = { ok: false, error: String(e.message || e) }; r.ok = false; }
 }
-if (args.write) fs.writeFileSync(path.join(HOME, 'state.json'), JSON.stringify({ checked: new Date().toISOString(), node: r.node, browser: r.browser, mcp: { providersFound: mcp.providersFound, imageCapable: mcp.imageCapable.map((s) => s.name) } }, null, 2));
+if (args.write) fs.writeFileSync(STATE, JSON.stringify({ checked: new Date().toISOString(), setupDone: !r.firstRun || r.ok, node: r.node, browser: r.browser, mcp: { providersFound: mcp.providersFound, imageCapable: mcp.imageCapable.map((s) => s.name) } }, null, 2));
 out(r);
 process.exit(r.ok ? 0 : 1);
