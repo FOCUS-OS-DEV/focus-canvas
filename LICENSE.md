@@ -19,14 +19,21 @@ modified version of it, and you may not present it as your own work.
 - Programs that Focus Canvas installs or runs on your computer are governed by their own licences. These include
   Node.js, Playwright with its browser, and sharp.
 
+## Third-party services
+
+Image generation runs on services you connect yourself (such as fal, Replicate and Higgsfield) under their own terms.
+All charges, subscriptions and credits are billed by those providers to your account and are your sole
+responsibility. Focus AI Academy is not a party to that relationship and does not guarantee their results, prices or
+availability.
+
 ## Your responsibility
 
 You use Focus Canvas at your own risk and under your sole responsibility. In particular, you are responsible for:
 - every image you create with it, its content, and where and how you publish it;
-- having the rights and permissions for every material you use: footage, photos, music, logos and voices, and the
-  consent of every person who appears or is heard in it;
+- having the rights and permissions for every material you use: images, photos, logos and fonts, and the consent of
+  every person who appears in it;
 - complying with the law and with the terms of every platform where you publish;
-- checking every result before you publish or send it, including transcripts and captions;
+- checking every result before you publish or send it, including every word, number and name on the image;
 - the programs that are installed and the commands that Claude Code runs on your computer while you use the skill,
   which Claude Code asks you to approve, and keeping backups of your files;
 - your use of Claude Code and of your Claude plan, including any cost, under Anthropic's terms.
@@ -34,11 +41,11 @@ You use Focus Canvas at your own risk and under your sole responsibility. In par
 ## No warranty and no liability
 
 Focus Canvas is provided "as is" and "as available", without warranty of any kind, express or implied, including
-warranties of fitness for a particular purpose, of accuracy (of transcripts, captions or any other output) and of
-non-infringement. To the maximum extent permitted by law, Focus AI Academy, its owners, employees and partners are not
-liable for any direct, indirect, incidental or consequential damage or loss arising from the use of Focus Canvas or
-from the inability to use it. This includes loss of data, damage to software or hardware, lost income, and claims by
-third parties about content you created.
+warranties of fitness for a particular purpose, of accuracy (of text on an image, generated images or any other
+output) and of non-infringement. To the maximum extent permitted by law, Focus AI Academy, its owners, employees and
+partners are not liable for any direct, indirect, incidental or consequential damage or loss arising from the use of
+Focus Canvas or from the inability to use it. This includes loss of data, damage to software or hardware, lost
+income, and claims by third parties about content you created.
 
 ## Not affiliated
 
