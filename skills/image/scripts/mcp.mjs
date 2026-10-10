@@ -199,13 +199,19 @@ function probeClaude() {
     ? spawnSync('claude mcp list', { encoding: 'utf8', timeout: 90000, shell: true, windowsHide: true })
     : spawnSync('claude', ['mcp', 'list'], { encoding: 'utf8', timeout: 90000 });
   if (res.error || res.status == null) return { ok: false, error: res.error ? String(res.error.message || res.error) : 'timeout' };
+  return { ok: true, status: parseMcpList(res.stdout) };
+}
+// A line is `<name>: <url or command> - <status>`. The status is what follows the LAST " - " (a command carries its own
+// dashes and words like "oauth"), the name what precedes the first ": " (plugin names hold colons), and a failure is
+// tested before "auth", so a failed server is never told to sign in.
+export function parseMcpList(stdout) {
   const status = {};
-  for (const line of String(res.stdout || '').split(/\r?\n/)) {
-    const m = line.match(/^([^:\s][^:]*):\s.*?-\s*(.+)$/); if (!m) continue;
+  for (const line of String(stdout || '').split(/\r?\n/)) {
+    const m = line.match(/^(\S.*?):\s.*\s-\s(.+?)\s*$/); if (!m) continue;
     const s = m[2];
-    status[m[1].trim()] = /Connected/i.test(s) ? 'connected' : /auth/i.test(s) ? 'needs-auth' : /Failed/i.test(s) ? 'failed' : s.replace(/[^\w\s-]/g, '').trim();
+    status[m[1].trim()] = /fail|error/i.test(s) ? 'failed' : /\bconnected\b/i.test(s) ? 'connected' : /auth/i.test(s) ? 'needs-auth' : s.replace(/[^\w\s-]/g, '').trim();
   }
-  return { ok: true, status };
+  return status;
 }
 
 // Tool names of the running session, mcp__<server>__<tool>: which servers expose image tools.
