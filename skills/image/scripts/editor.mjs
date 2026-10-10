@@ -102,7 +102,10 @@ const FONTS=${JSON.stringify(fonts)}, POOLS=${JSON.stringify(pools)};
 let doc=${JSON.stringify(doc)}, stamp=${JSON.stringify(stampOf())}, sel=null, slotSel=null, dirty=false, hist=[];
 const $=(s)=>document.querySelector(s), stage=$('#stage'), fit=$('#fit'), box=$('#box');
 let scale=1;
-function layout(){const v=$('#view').getBoundingClientRect();scale=Math.min((v.width-56)/doc.canvas.w,(v.height-56)/doc.canvas.h);fit.style.transform='scale('+scale+')';fit.style.width=doc.canvas.w+'px';fit.style.height=doc.canvas.h+'px';}
+function layout(){const v=$('#view').getBoundingClientRect();scale=Math.min((v.width-56)/doc.canvas.w,(v.height-56)/doc.canvas.h);fit.style.transform='scale('+scale+')';fit.style.width=doc.canvas.w+'px';fit.style.height=doc.canvas.h+'px';
+ // the transform does not change the layout size, so the flex centring of #view centred the unscaled canvas and the
+ // picture sat cut at the top; it is placed by its scaled size instead
+ fit.style.position='absolute';fit.style.left=Math.round((v.width-doc.canvas.w*scale)/2)+'px';fit.style.top=Math.round((v.height-doc.canvas.h*scale)/2)+'px';}
 window.addEventListener('resize',()=>{layout();drawBox();});
 function L(id){return doc.layers.find((l)=>l.id===id);}
 function el(id){return stage.querySelector('.layer[data-id="'+CSS.escape(id)+'"]');}
