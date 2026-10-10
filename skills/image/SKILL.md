@@ -34,8 +34,8 @@ Read `references/conversation.md` once per conversation. In short:
   plan that names the price. The spend is the user's.
 - **Showing.** The editor page, the render and the folder open on the user's screen (`scripts/open.mjs`). One page,
   one tab: the page updates itself; never open a second copy.
-- **Brand.** It appears three times in the conversation, as written in that file. It never appears inside the
-  user's picture.
+- **Brand.** It appears three times in the conversation, as written in that file, and once more in the disclaimer
+  of the first run on a computer. It never appears inside the user's picture.
 
 ## The flow
 
@@ -60,12 +60,13 @@ to the user in one line before the plan.
 ### 1. Setup and the picture service
 
 ```
-node "<SKILL>/scripts/doctor.mjs" --selftest --tools "<every mcp__ tool name you see in this session>"
+node "<SKILL>/scripts/doctor.mjs" --selftest --write --tools "<every mcp__ tool name you see in this session>"
 ```
 Checks Node, the two packages, the browser and the fonts, renders the example, and under `mcp` says which MCP
-servers on this computer make pictures. `missing` carries the install command for each item. Details and the
-offer when no picture server exists: `references/setup.md`. On a later project, when a picture needs generating,
-run the detection alone:
+servers on this computer make pictures. `missing` carries the install command for each item. `firstRun: true`
+means the first run on this computer: the disclaimer of `references/setup.md` comes before any paid step, once.
+Details and the offer when no picture server exists: `references/setup.md`. On a later project, when a picture
+needs generating, run the detection alone:
 ```
 node "<SKILL>/scripts/mcp.mjs" --tools "<the mcp__ tool names of this session>"
 ```
@@ -158,7 +159,8 @@ Say where the files are, what was spent (`save.mjs costs`), and what the user sh
 4. **One file is the truth.** `layers.json`. The editor writes it, you read it; you write it, the editor shows it.
    Never keep a second copy of a position in your head or in another file.
 5. **The gate runs before the user sees a picture.** A FAIL is fixed first.
-6. **Nothing of the brand inside the picture.** The brand appears only in the conversation, three times.
+6. **Nothing of the brand inside the picture.** The brand appears only in the conversation, three times, and once
+   more in the disclaimer of the first run.
 7. **Only what the user may use.** Photos, logos and fonts come from the user or from this skill's fonts. Another
    company's logo or a stock photo is never generated as a lookalike.
 8. **Numbers and claims on the picture come from the user.** A date, a price, a count is asked, never invented.

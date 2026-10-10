@@ -16,11 +16,14 @@ One message, in Hebrew, before anything is built or paid. The user reads it in h
 **גדלים:** <פוסט, סטורי, ריבוע>
 **השירות:** <the name of the MCP connection, alone, or nothing when there is no paid step>
 **עלות:** <השלבים בתשלום ומחירם בדולרים או בקרדיטים, כפי שהספק סופר, או "בלי עלות">
+החיוב נעשה אצל <ספק>, בחשבון שלך.
 
 מאשרים, או שיש מה לשנות?
 ```
 
 - Every word on the picture is listed with its exact spelling. Numbers, dates and prices come from the user.
+- `<ספק>` is the provider's name in English, as under **השירות** (fal, Replicate, Higgsfield). With no paid step
+  the charge line is left out.
 - The price comes from the provider's tool (`references/generate.md`), not from memory. A paid step runs only
   after the yes to the plan that names it.
 - When there are two directions (a photo wall or a single scene; a stamp or a ribbon), show both in one line each
@@ -42,5 +45,6 @@ One message, in Hebrew, before anything is built or paid. The user reads it in h
 **גדלים:** פוסט. סטורי אם תרצה, בלי עלות.
 **השירות:** fal
 **עלות:** שני ניסיונות של הסרט, 0.30 דולר, וחיתוך, 0.01 דולר. סך הכול 0.31 דולר.
+החיוב נעשה אצל fal, בחשבון שלך.
 
 מאשרים, או שיש מה לשנות?

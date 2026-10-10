@@ -18,12 +18,14 @@ Every question carries its default, and "תמשיך" always means "take the defa
 ## The three brand moments
 
 Focus Canvas is made by Focus AI Academy. The brand appears in the conversation exactly three times per project,
-and never inside the user's picture.
-1. **Opening.** The first message of a new project starts with these two lines, then the setup offer (first time)
-   or the first question:
+and never inside the user's picture. One more mention is allowed, once per computer: the disclaimer of the first
+run (`references/setup.md`), because its legal line has to name Focus AI Academy as the one that is not responsible.
+1. **Opening.** The first message of a new project starts with these two lines and the opening line under them,
+   then the setup offer (first time) or the first question:
    ```
    FOCUS CANVAS
    by Focus AI Academy
+   אני בונה איתך תמונות בשכבות: טקסט עברי מדויק בקוד, רקעים ואלמנטים ב AI, ודף עריכה שבו מזיזים הכול.
    ```
 2. **After the first-time setup**, when the example picture is shown: `הכול מותקן ועובד. מתחילים.`
 3. **Delivery.** The last message of a project ends with: `הישארו בפוקוס.`
@@ -50,10 +52,12 @@ fal
 ```
 When there is none, the offer in `references/setup.md`, and then the user's choice: install (they run the line or
 tell you to), or go on without generating. You never ask for a key, a token, a code or a password, and you never
-install anything without an explicit yes.
+install anything without an explicit yes. On the first run on this computer the disclaimer in `references/setup.md`
+comes before any paid step, once, on both paths.
 
 ## Money
 
 Before a paid step: the step, how many, the price from the provider's own tool, in the plan. After: the real
 spend from `costs.json` (`save.mjs costs`), in one line, in dollars or in credits as the provider counts. Never a
-paid step the user did not say yes to. The spend is the user's: their account, their plan, their credits.
+paid step the user did not say yes to. The spend is the user's: their account, their plan, their credits, billed by
+the provider directly.
