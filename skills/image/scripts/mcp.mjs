@@ -6,7 +6,8 @@
 //                                     server by its tools and to find image tools on servers this file does not know.
 //                                     A configured server with none of its tools here is not-connected and not usable;
 //                                     without --tools a configured one counts, with the status "configured, not verified"
-//   node mcp.mjs --offer              print the three providers to offer when nothing exists: install lines, prices, terms
+//   node mcp.mjs --offer              print the three providers to offer when nothing exists: install lines, sign-in,
+//                                     the billing page, prices, terms
 //   node mcp.mjs --cwd <dir>          the project folder whose local scope, .mcp.json and .codex/config.toml are read (default: cwd)
 // Pictures are generated through an MCP connection only. This tool never reads, prints or stores an API key:
 // URLs lose their query, header values and env values are never shown, long tokens in arguments are redacted.
@@ -32,6 +33,7 @@ export const PROVIDERS = {
     payment: 'prepaid credits, pay as you go, no subscription. You load money first and every picture is deducted.',
     prices: 'Nano Banana Pro $0.15 a picture, Nano Banana 2 $0.08 a picture, FLUX 3 $0.024 per megapixel (fal.ai/pricing, read 2026-10-09). Cutouts and expanding: ask get_pricing for fal-ai/birefnet/v2 and fal-ai/bria/expand before quoting.',
     load: 'load a few dollars at a time (5 to 10). Credits buy only what you asked for; there is no monthly fee.',
+    billing: 'https://fal.ai/dashboard/usage-billing/billing',
     covers: 'new pictures, edits from references, cutouts, expanding: the whole pipeline of this skill.',
     sources: ['https://fal.ai/docs/documentation/setting-up/mcp', 'https://fal.ai/docs/documentation/setting-up/mcp/claude-code', 'https://fal.ai/docs/documentation/setting-up/mcp/codex-cli', 'https://fal.ai/pricing', 'https://fal.ai/docs/documentation/model-apis/pricing'],
   },
@@ -48,6 +50,7 @@ export const PROVIDERS = {
     payment: 'pay as you go, no subscription. Two ways on replicate.com: prepaid credit (you buy first, usage deducts), or a card charged at the start of each month for the previous month (it may charge early the first time usage crosses a limit).',
     prices: 'flux-1.1-pro $0.04 a picture, flux-dev $0.025, flux-schnell $3 per 1,000, ideogram-v3-quality $0.09, recraft-v3 $0.04 (replicate.com/pricing, read 2026-10-09). Nano Banana Pro and background removers: read the price on the model page before quoting.',
     load: 'choose prepaid credit and load a few dollars at a time, so nothing is charged beyond what you put in.',
+    billing: 'https://replicate.com/account/billing',
     covers: 'new pictures, edits, background removal and expanding through models found with search_models.',
     sources: ['https://mcp.replicate.com/', 'https://replicate.com/docs/reference/mcp', 'https://replicate.com/pricing', 'https://replicate.com/docs/topics/billing'],
   },
@@ -63,11 +66,14 @@ export const PROVIDERS = {
     payment: 'a recurring monthly subscription with a fixed bag of credits. Via MCP every picture costs credits: the "unlimited" and "free generations" of the plans work only on higgsfield.ai, not on MCP or CLI (their pricing page says so).',
     prices: 'Starter $19 a month for 270 credits (about 135 Nano Banana Pro pictures at 2 credits each), Plus $59 a month or $47 a month billed annually for 1,200 credits, Ultra $129 a month or $99 billed annually for 3,000 credits. Subscription credits reset every month and do not roll over (higgsfield.ai/pricing, read 2026-10-09; roll-over per krea.ai guide of 2026-09-05).',
     load: 'there is no small prepaid entry: the smallest plan is $19 a month. Cancel the plan when you do not need it.',
+    billing: 'https://higgsfield.ai/pricing',
     covers: 'new pictures and edits with references (GPT Image, Nano Banana Pro, FLUX, Seedream, Soul). Cutouts and expanding via MCP were not verified: list the tools at runtime.',
     sources: ['https://higgsfield.ai/mcp', 'https://higgsfield.ai/pricing', 'https://mcp.higgsfield.ai/.well-known/oauth-protected-resource'],
   },
 };
-export const RESPONSIBILITY = 'Usage and spend are yours: the account, the plan, the credits and every picture generated with them. The skill quotes before and reports after, and never runs a paid step you did not say yes to.';
+// billing: the page where the user loads money or picks a plan, checked reachable on 2026-10-11 (fal and Replicate ask
+// to sign in first, on their own domain).
+export const RESPONSIBILITY = "The account with the provider, the plan, the credits and every charge are the user's, under the provider's terms, and are billed by the provider directly. The skill quotes before each paid step and reports after, and never runs one the user did not say yes to; the price that counts is the provider's on the day of the charge. Results of an AI model are not guaranteed, and a failed attempt costs money too. The rights in every material that goes into a picture (photos, logos, people) and responsibility for what is published are the user's. The skill is provided as is.";
 
 // Tool names that generate or change pictures, for servers this file does not know.
 const IMAGE_TOOL = /(generate|create|make|render|edit|inpaint|outpaint|upscale|expand|remove|cut|txt2img|text_to_image|img2img|image_to_image|run_model|create_predictions|invoke)/i;
@@ -299,7 +305,7 @@ export function offer() {
     readOn: READ_ON,
     responsibility: RESPONSIBILITY,
     advice: 'Pick one. fal is the one that covers every step of this skill with prepaid credits you top up a few dollars at a time; Replicate is pay as you go too; Higgsfield is a monthly subscription. Prices change: the numbers carry the day they were read.',
-    providers: Object.fromEntries(Object.entries(PROVIDERS).map(([k, p]) => [k, { label: p.label, claudeCode: p.claude, claudeCodeAuth: p.claudeAuth, codex: p.codex, codexAuth: p.codexAuth, auth: p.auth, payment: p.payment, prices: p.prices, load: p.load, covers: p.covers, sources: p.sources }])),
+    providers: Object.fromEntries(Object.entries(PROVIDERS).map(([k, p]) => [k, { label: p.label, claudeCode: p.claude, claudeCodeAuth: p.claudeAuth, codex: p.codex, codexAuth: p.codexAuth, auth: p.auth, payment: p.payment, prices: p.prices, load: p.load, billing: p.billing, covers: p.covers, sources: p.sources }])),
   };
 }
 
