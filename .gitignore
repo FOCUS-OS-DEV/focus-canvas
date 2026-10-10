@@ -6,3 +6,4 @@ Thumbs.db
 /tmp/
 __pycache__/
 /_test/
+.stage.html
