@@ -5,7 +5,7 @@ license: Free to use for making images, including commercial ones. The skill its
 compatibility: Claude Code or Codex on Windows or macOS. Needs Node.js 20 or newer. The first-time setup installs two packages and a browser and needs an internet connection once. Generating, cutting and expanding pictures go through an MCP server the user has connected (fal, Replicate or Higgsfield); the skill holds no API key and asks for none.
 metadata:
   author: Focus AI Academy
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Focus Canvas

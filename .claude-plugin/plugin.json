@@ -1,7 +1,7 @@
 {
   "name": "focus-canvas",
   "displayName": "Focus Canvas",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Focus Canvas by Focus AI Academy: plan, generate and compose finished pictures in layers inside Claude Code, in Hebrew. AI for backgrounds and elements through your own MCP connection (fal, Replicate or Higgsfield, no API keys), code for exact text and logos, a photo wall, and a local editor page where you move, resize and rotate every layer and save.",
   "author": { "name": "Focus AI Academy", "url": "https://focusai.co.il" },
   "homepage": "https://focusai.co.il/guides/focus-canvas/",
