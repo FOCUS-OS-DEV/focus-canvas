@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Focus Canvas: checks the computer once. Node 20+, the two packages, the browser, the fonts, and which MCP servers
 // can make pictures (pictures are generated through an MCP connection only; this skill holds no API key).
-//   node doctor.mjs [--selftest] [--write] [--probe] [--tools "mcp__x__a,..."] [--cwd <dir>]
+//   node doctor.mjs [--selftest] [--write] [--install] [--probe] [--tools "mcp__x__a,..."] [--cwd <dir>] [--help]
 // --probe asks `claude mcp list` whether each server connects (a few seconds). --tools passes the tool names of the
 // running session, so a server is confirmed by its tools. Never prints a key.
 import fs from 'node:fs';
@@ -11,6 +11,22 @@ import { out, parseArgs, SKILL, FONTS_DIR, HOME } from './lib/common.mjs';
 import { detect, UNVERIFIED } from './mcp.mjs';
 
 const args = parseArgs(process.argv.slice(2));
+// SKILL.md promises --help on every tool; it prints and stops before any check (no browser start, no file written).
+if (args.help) {
+  console.log(`doctor.mjs: checks the computer once: Node 20+, the two packages, the browser, the fonts, and which MCP
+servers can make pictures. Never prints a key.
+
+Usage:
+  node doctor.mjs [--selftest] [--write] [--install] [--probe] [--tools "mcp__x__a,mcp__y__b"] [--cwd <dir>]
+
+  --selftest  also render the example picture
+  --write     keep the result in ~/.focus-canvas/state.json
+  --install   install the browser of playwright when it is missing
+  --probe     ask \`claude mcp list\` whether each server connects (slow, it starts every server)
+  --tools     the tool names of the running session, to confirm a picture server by its tools
+  --cwd       the project folder whose MCP configs are read (default: the current folder)`);
+  process.exit(0);
+}
 const r = { ok: true, node: process.version, missing: [], notes: [] };
 const major = +process.version.slice(1).split('.')[0];
 if (major < 20) { r.ok = false; r.missing.push({ what: 'Node.js 20 or newer', install: 'https://nodejs.org' }); }
