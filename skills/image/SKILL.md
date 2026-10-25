@@ -85,6 +85,7 @@ what is new on top (`protect: true`).
 ```
 node "<SKILL>/scripts/project.mjs" init my-picture --platform ig-post --title "..."
 node "<SKILL>/scripts/project.mjs" ingest my-picture "C:/photos" "C:/brand/logo.png"
+node "<SKILL>/scripts/project.mjs" ingest my-picture "/Users/<name>/photos" "/Users/<name>/brand/logo.png"
 ```
 `source/` holds what the user brought, `work/` what was generated or cut, `renders/` the current picture,
 `exports/` the sizes, `_versions/` every earlier layers file. `layers.json` is the picture. Schema: `references/layers.md`.
