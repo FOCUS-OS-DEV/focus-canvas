@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// DEPRECATED: this script is not used by the skill and is kept only for maintainers.
+// It is the ONLY place in this plugin that reads API keys (OPENAI_API_KEY / FAL_KEY) from the environment or a .env file.
 // INTERNAL, DEPRECATED since 0.3.0 (2026-10-09). Not part of the skill's flow and not documented to the user.
 // Pictures are generated through an MCP connection only (see references/generate.md and scripts/mcp.mjs); the
 // result is brought into the project with scripts/save.mjs. This file is the old direct-API path and stays only for
