@@ -35,7 +35,7 @@ https://focusai.co.il/guides/focus-canvas/
 
 ```
 /plugin marketplace add FOCUS-OS-DEV/focus-canvas
-/plugin install focus-canvas@focus-ai-academy
+/plugin install focus-canvas@focus-canvas
 ```
 
 או בדרך הכי פשוטה: מדביקים בקלוד קוד או בקודקס את הפרומפט הזה, והכלי מתקין לבד:
@@ -45,7 +45,7 @@ https://focusai.co.il/guides/focus-canvas/
 המאגר: https://github.com/FOCUS-OS-DEV/focus-canvas
 אם אתה קלוד קוד: תריץ את שתי הפקודות האלה, אחת אחרי השנייה:
 claude plugin marketplace add FOCUS-OS-DEV/focus-canvas
-claude plugin install focus-canvas@focus-ai-academy
+claude plugin install focus-canvas@focus-canvas
 אם אתה קודקס: תשכפל את המאגר, תריץ בתוכו את שתי הפקודות האלה, אחת אחרי השנייה:
 npm install
 npx playwright install chromium
@@ -75,7 +75,16 @@ npx playwright install chromium
 כשיוצאת גרסה חדשה, מעדכנים בשורה אחת:
 
 ```
-/plugin update focus-canvas@focus-ai-academy
+/plugin update focus-canvas@focus-canvas
+```
+
+מי שהתקין לפני 2.11.2026: שם החנות השתנה מ `focus-ai-academy` ל `focus-canvas`, כדי שאפשר יהיה להתקין את הסקיל
+הזה ואת Focus Motion באותו מחשב. מסירים פעם אחת את החנות הישנה ומוסיפים מחדש, שורה אחרי שורה:
+
+```
+/plugin marketplace remove focus-ai-academy
+/plugin marketplace add FOCUS-OS-DEV/focus-canvas
+/plugin install focus-canvas@focus-canvas
 ```
 
 ## החיבור לשירות התמונות
